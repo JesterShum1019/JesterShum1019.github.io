@@ -1,0 +1,687 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/JesterShum1019/JesterShum1019.github.io/blob/main/Inventory%20%26%20Order%20Management%20System%20%E2%80%93%20Python\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "New Specs for Version 2:\n",
+        "1. Main with login option (manager and customer and then calling functions to show their screens)\n",
+        "2. Customer and Manager option menus\n",
+        "3. For customer:\n",
+        "        show in stock or not messages\n",
+        "        when display orders, show only for that customer\n",
+        "4. For manager:\n",
+        "        option to edit prices and reorder stock\n",
+        "        when display orders, show full menu with stocks\n",
+        "\n",
+        "\n",
+        "To do for everyone:\n",
+        "global dictionaries --> logins and passwords, customer IDs\n",
+        "(two customers and one manager)\n",
+        "\n",
+        "To-Do:\n",
+        "\n",
+        "1) Jester>> login option: login as cusutomer or manager, password and ID validation, link the user with the right menu\n",
+        "\n",
+        "2) Carina>> for customer: show inventory status, make sure the product is in stock, update stocking status, display customer order details\n",
+        "\n",
+        "3) Kayla>> for manager: edit prices and reorder stock options (create two new functions)\n",
+        "\n",
+        "4) Ashita>> update display function, the remaining stock amount\n",
+        "\n",
+        "5) Lauren>> debugging and smoothing out the code\n"
+      ],
+      "metadata": {
+        "id": "ReafocoIT96S"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Team Members: Ashitha, Carina, Jester, Kayla, Lauren\n",
+        "1. get_date function, code and convert into string >>Jester\n",
+        "2. submit_order function, display_product function >>Carina\n",
+        "3. compute_price function >>Lauren\n",
+        "4. display_orders >>Ashitha\n",
+        "5. build the main >>Kayla"
+      ],
+      "metadata": {
+        "id": "JLhbdb4MwJly"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "vBnS3fr2vyeb"
+      },
+      "outputs": [],
+      "source": [
+        "import datetime\n",
+        "import random"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "customer_info = {101:'customer1',102:'customer2'}\n",
+        "manager_info = {201:'manager1'}\n",
+        "log_out = False\n",
+        "quit = False"
+      ],
+      "metadata": {
+        "id": "LsAkWt8shUgF"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "products = {\n",
+        "    1001: {'Name':'Table','Unit Price': 10.00,'Stock': 200, 'In-stock': True},\n",
+        "    1002:{'Name':'Chair','Unit Price': 15.00,'Stock': 300, 'In-stock': True},\n",
+        "    1003:{'Name':'Desk','Unit Price': 20.00,'Stock': 400, 'In-stock': True}\n",
+        "    }\n",
+        "\n",
+        "orders = {}\n",
+        "o_id = 10000"
+      ],
+      "metadata": {
+        "id": "9vl1rRL70HNw"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def display_products():\n",
+        "    global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "\n",
+        "    print(f\"{'Product ID':<12} {'Name':<10} {'Unit Price':<12} {'Stock':<8} {'In-stock':<10}\")\n",
+        "    print(\"-\" * 58)\n",
+        "\n",
+        "    for product_id in products:\n",
+        "        product = products[product_id]\n",
+        "        name = product['Name']\n",
+        "        unit_price = product['Unit Price']\n",
+        "        stock = product['Stock']\n",
+        "        in_stock = product['In-stock']\n",
+        "\n",
+        "        print(f\"{product_id:<12} {name:<10} ${unit_price:<11.2f} {stock:<8} {str(in_stock):<10}\")"
+      ],
+      "metadata": {
+        "id": "NXlBn9F1xtpc"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def compute_order_price(pid, quantity):\n",
+        "    global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "    order_price = 0.0\n",
+        "    product_details = products[pid]\n",
+        "    unit_price = product_details['Unit Price']\n",
+        "    order_price = unit_price * quantity\n",
+        "\n",
+        "    return order_price"
+      ],
+      "metadata": {
+        "id": "rkr3svXMxE7-"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def get_date():  #order date\n",
+        "  global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "  start_date = datetime.date(2022,1,1)\n",
+        "  end_date = datetime.date(2023,12,31)\n",
+        "\n",
+        "  dates = []\n",
+        "  x = start_date\n",
+        "  while x <= end_date:\n",
+        "    dates.append(x)\n",
+        "    x = x + datetime.timedelta(days=1)\n",
+        "\n",
+        "  random_date = random.choice(dates)\n",
+        "\n",
+        "  return random_date"
+      ],
+      "metadata": {
+        "id": "_93S03i5xBO_"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def can_meet_order_of(pid, quantity):\n",
+        "  global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "  return quantity <= products[pid]['Stock']"
+      ],
+      "metadata": {
+        "id": "WQNfqFtdxwl_"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def update_stock(pid, quantity):\n",
+        "  global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "  product_details = products[pid]\n",
+        "  stock = product_details['Stock']\n",
+        "  stock -= quantity\n",
+        "  if stock > 0:\n",
+        "     in_stock = 'True'\n",
+        "  else:\n",
+        "     in_stock = 'False'\n",
+        "  product_details['In-stock'] = in_stock\n",
+        "  product_details['Stock'] = stock"
+      ],
+      "metadata": {
+        "id": "qosKNAzgDzed"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def submit_order(customer_id):\n",
+        "  global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "  display_products()\n",
+        "  pid = int(input('Enter the product ID to select a product >>'))\n",
+        "  while not pid in products:\n",
+        "    print(f'You entered an invalid product ID, {pid:d}.')\n",
+        "    pid = int(input('Please enter a valid product ID >>'))\n",
+        "\n",
+        "  product_details = products[pid]\n",
+        "  in_stock = product_details['In-stock']\n",
+        "  while not in_stock:\n",
+        "     print('Out of stock for that product, sorry!')\n",
+        "     return\n",
+        "\n",
+        "  quantity = int(input('Enter the quantity ordered >>'))\n",
+        "  if not can_meet_order_of(pid, quantity):\n",
+        "     return print('Not enough stock for this product, sorry!')  #exit submit_order function\n",
+        "\n",
+        "  order_price = compute_order_price(pid, quantity)\n",
+        "\n",
+        "  order_date = get_date()\n",
+        "  order_date_string = order_date.strftime(\"%d-%m-%y\")\n",
+        "\n",
+        "  p_name = product_details['Name']\n",
+        "\n",
+        "  #update globals\n",
+        "  o_id += 1\n",
+        "\n",
+        "  order_details = {}\n",
+        "  orders[o_id] = order_details\n",
+        "\n",
+        "  order_details['Order Date'] = order_date_string\n",
+        "  order_details['Customer ID'] = customer_id\n",
+        "  order_details['Product ID'] = pid\n",
+        "  order_details['Name'] = p_name\n",
+        "  order_details['Quantity'] = quantity\n",
+        "  order_details['Order Price'] = order_price\n",
+        "\n",
+        "  print(f\"\"\"\n",
+        "Order Date:   {order_date_string:s}\n",
+        "Product ID:   {pid:d}\n",
+        "Product Name: {p_name:s}\n",
+        "Quantity:     {quantity:d}\n",
+        "Order Price: ${order_price:.2f}\n",
+        "        \"\"\")\n",
+        "\n",
+        "  #update stock\n",
+        "  update_stock(pid, quantity)\n",
+        "  print('Stock updated!')"
+      ],
+      "metadata": {
+        "id": "N8dw1rAjw23L"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def customer_display_orders(customer_id):\n",
+        "  global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "\n",
+        "  if not orders:\n",
+        "    print('No orders submitted.')\n",
+        "    return\n",
+        "\n",
+        "  line = '-' * 65\n",
+        "  #horizontal line\n",
+        "\n",
+        "  print(line)\n",
+        "  print(f'|{\"Order ID\":^10s}|{\"Date\":^10s}|{\"Product ID\":^10s}|{\"Name\":^10s}|{\"Quantity\":^10s}|{\"Price\":^10s}|')\n",
+        "  print(line)\n",
+        "\n",
+        "  customer_display_details = {}\n",
+        "\n",
+        "  for oid in orders:\n",
+        "      order_details = orders[oid]\n",
+        "      cid = order_details['Customer ID']\n",
+        "      if cid == customer_id:\n",
+        "        customer_display_details[oid] = order_details\n",
+        "\n",
+        "  if not customer_display_details:\n",
+        "    print('No orders submitted.')\n",
+        "    return\n",
+        "\n",
+        "  for oid in customer_display_details:\n",
+        "     customer_order_details = customer_display_details[oid]\n",
+        "     date = customer_order_details['Order Date']\n",
+        "     product_id = customer_order_details['Product ID']\n",
+        "     name = customer_order_details['Name']\n",
+        "     quantity = customer_order_details['Quantity']\n",
+        "     price = customer_order_details['Order Price']\n",
+        "     print(f'|{oid:<10d}|{date:^10s}|{product_id:^10d}|{name:<10s}|{quantity:^10d}|{price:>10.2f}|')\n",
+        "  print(line)"
+      ],
+      "metadata": {
+        "id": "ZykNO9HPEIlZ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def display_orders():\n",
+        "  global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "\n",
+        "  line = '-' * 85\n",
+        "  #horizontal line\n",
+        "\n",
+        "  print(line)\n",
+        "  print(f'|{\"Order ID\":^10s}|{\"Customer\":^10s}|{\"Date\":^10s}|{\"Product ID\":^10s}|{\"Name\":^10s}|{\"Quantity\":^10s}|{\"Price\":^10s}|')\n",
+        "  print(line)\n",
+        "\n",
+        "  for oid in orders:\n",
+        "      order_details = orders[oid]\n",
+        "      #gets the value, which is student_details1 and 2\n",
+        "      #then, prints values within the value we pulled since it's another dict\n",
+        "      customer_id = order_details['Customer ID']\n",
+        "      date = order_details['Order Date']\n",
+        "      product_id = order_details['Product ID']\n",
+        "      name = order_details['Name']\n",
+        "      quantity = order_details['Quantity']\n",
+        "      price = order_details['Order Price']\n",
+        "\n",
+        "      print(f'|{oid:<10d}|{customer_id:^10d}|{date:^10s}|{product_id:^10d}|{name:<10s}|{quantity:^10d}|{price:>10.2f}|')\n",
+        "\n",
+        "  #end for loop\n",
+        "  print(line)"
+      ],
+      "metadata": {
+        "id": "9JfL9wnQw8mD"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def manager_display_products(): #use in both edit prices and reorder stock\n",
+        "    global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "\n",
+        "    print(f\"{'Product ID':<12} {'Name':<10} {'Unit Price':<12} {'Stock':<8} {'In-stock':<10}\")\n",
+        "    print(\"-\" * 58)\n",
+        "\n",
+        "    for product_id in products:\n",
+        "        product = products[product_id]\n",
+        "        name = product['Name']\n",
+        "        unit_price = product['Unit Price']\n",
+        "        stock = product['Stock']\n",
+        "        in_stock = product['In-stock']\n",
+        "\n",
+        "        print(f\"{product_id:<12} {name:<10} ${unit_price:<11.2f} {stock:<8} {str(in_stock):<10}\")"
+      ],
+      "metadata": {
+        "id": "uWoSGGHHG3HY"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "#main: don't use 'quit'!! quit is reserved for stage 2. 1. Submit Order 2.View Orders 3. Done\n",
+        "def display_customer_menu(customer_id):\n",
+        "  global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "  while True:\n",
+        "    print('1. Submit Order  2. View Orders  3. Logout. 4. Exit')\n",
+        "    choice = int(input('1, 2, 3, or 4 >>'))\n",
+        "    if choice == 1:\n",
+        "        submit_order(customer_id)\n",
+        "    elif choice == 2:\n",
+        "        customer_display_orders(customer_id)\n",
+        "    elif choice == 3:\n",
+        "        log_out = True\n",
+        "        break\n",
+        "    elif choice == 4:\n",
+        "        quit = True\n",
+        "        break\n",
+        "    else:\n",
+        "        print('Invalid choice!')\n",
+        "  print('Goodbye!')"
+      ],
+      "metadata": {
+        "id": "7XZbkdCnysZZ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def edit_prices():\n",
+        "  global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "\n",
+        "  option_pid = {1:1001, 2:1002, 3:1003}\n",
+        "\n",
+        "  while True:\n",
+        "      manager_display_products()\n",
+        "      option = int(input('Enter 1, 2, or 3 to change unit price of products 1001, 1002, 1003.\\nEnter 4 if you are done changing prices >>'))\n",
+        "      if option not in {1,2,3,4}:\n",
+        "         print('Invalid input. Please try again.')\n",
+        "         option = int(input('Enter 1, 2, or 3 to change unit price of products 1001, 1002, 1003.\\nEnter 4 if you are done changing prices >>'))\n",
+        "         continue\n",
+        "\n",
+        "      pid = option_pid[option]\n",
+        "      product = products[pid]\n",
+        "      unit_price = product['Unit Price']\n",
+        "\n",
+        "      print(f\"Current unit price for product {pid} is ${unit_price:.2f}\")\n",
+        "      new_price = float(input('Enter new value for unit price >>'))\n",
+        "\n",
+        "      if new_price > 0:\n",
+        "         products[pid]['Unit Price'] = new_price\n",
+        "         print(f'Price changed to {new_price:.2f} for product ID {pid}')"
+      ],
+      "metadata": {
+        "id": "XxqesXc0IY8-"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def reorder_stock():\n",
+        "  global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "\n",
+        "  option_pid = {1:1001, 2:1002, 3:1003}\n",
+        "\n",
+        "  while True:\n",
+        "      manager_display_products()\n",
+        "      option = int(input('Enter 1, 2, or 3 to reorder stock for product 1001, 1002, 1003.\\nEnter 4 if you are done reordering stock >>'))\n",
+        "      if option not in {1,2,3,4}:\n",
+        "         print('Invalid input. Please try again.')\n",
+        "         option = int(input('Enter 1, 2, or 3 to reorder stock for product 1001, 1002, 1003.\\nEnter 4 if you are done reordering stock >>'))\n",
+        "         return\n",
+        "\n",
+        "      pid = option_pid[option]\n",
+        "      product = products[pid]\n",
+        "      stock = product['Stock']\n",
+        "      in_stock = product['In-stock']\n",
+        "\n",
+        "      print(f\"Current stock for product {pid} is {stock:d}\")\n",
+        "\n",
+        "      while True:\n",
+        "         new_quantity = float(input('Enter quantity to be ordered (Max = 2000)>>'))\n",
+        "         if new_quantity <= 0:\n",
+        "            print('Quantity must be greater than 0.')\n",
+        "         elif new_quantity > 2000:\n",
+        "            print('Reorder quantity too large. Please choose a quantity less than 2000.')\n",
+        "         else:\n",
+        "            break\n",
+        "\n",
+        "      products[pid]['Stock'] += new_quantity\n",
+        "      print(f\"Stock changed to {products[pid]['Stock']} for product ID {pid}\")"
+      ],
+      "metadata": {
+        "id": "CwSPb804IbK2"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def display_manager_menu():\n",
+        "    global customer_info, manager_info, log_out, quit, products, orders, o_id\n",
+        "    while True:  #manager options\n",
+        "        print('1.Display Orders 2.Edit Prices  3.Reorder Stock  4.Logout  5.Exit')\n",
+        "        choice = int(input('1 2 3 or 4 >>'))\n",
+        "        if choice == 1:\n",
+        "            display_orders()\n",
+        "        elif choice == 2:\n",
+        "            edit_prices()\n",
+        "        elif choice == 3:\n",
+        "            reorder_stock()\n",
+        "        elif choice == 4:\n",
+        "            log_out = True\n",
+        "            break #logout\n",
+        "        elif choice == 5:\n",
+        "            quit = True\n",
+        "            break #exit\n",
+        "        else:\n",
+        "            print('Invalid choice!')\n",
+        "    print('Goodbye!)')"
+      ],
+      "metadata": {
+        "id": "wx32VIGuGsrA"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "while not quit:\n",
+        "    print(\"1. Login  2. Quit\")\n",
+        "    main_choice = int(input(\"Choose 1 or 2 >>\"))\n",
+        "\n",
+        "    if main_choice == 1:\n",
+        "        print(\"Choose 1 for customer,  2 for manager >\")\n",
+        "        choice = int(input(\"1 OR 2 >>\"))\n",
+        "\n",
+        "        if choice == 1:\n",
+        "          uid = int(input(\"Enter id >\"))\n",
+        "          if uid not in customer_info:\n",
+        "            print(\"Invalid Login!\")\n",
+        "            continue\n",
+        "          pw = input(\"Enter Password >\")\n",
+        "          if customer_info[uid] == pw:\n",
+        "            print(f'Welcome Customer {uid}!')\n",
+        "            display_customer_menu(uid)  #link user to customer order menu\n",
+        "            if log_out:\n",
+        "              continue\n",
+        "            else:\n",
+        "              break\n",
+        "          else:\n",
+        "            print(\"Incorrect Password!\")\n",
+        "            continue\n",
+        "        elif choice == 2:\n",
+        "          uid = int(input(\"Enter id >\"))\n",
+        "          if uid not in manager_info:\n",
+        "            print(\"Invalid Login!\")\n",
+        "            continue\n",
+        "          pw = input(\"Enter Password >\")\n",
+        "          if manager_info[uid] == pw:\n",
+        "            print(f'Welcome Manager {uid}!')\n",
+        "            display_manager_menu()  #link user to manager order menu\n",
+        "          if log_out:\n",
+        "            continue\n",
+        "          else:\n",
+        "            break\n",
+        "\n",
+        "        else:\n",
+        "          print(\"Invalid Password!\")\n",
+        "          continue\n",
+        "\n",
+        "    elif main_choice == 2:\n",
+        "        quit = True\n",
+        "        break\n",
+        "    else:\n",
+        "        print(\"Invalid option. Please choose 1 or 2.\")\n",
+        "\n",
+        "    break"
+      ],
+      "metadata": {
+        "id": "aJU4Q8aMLAwn",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "2d7a560f-200a-4a35-9632-5d3731f1c235"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "1. Login  2. Quit\n",
+            "Choose 1 or 2 >>1\n",
+            "Choose 1 for customer,  2 for manager >\n",
+            "1 OR 2 >>1\n",
+            "Enter id >101\n",
+            "Enter Password >customer1\n",
+            "Welcome Customer 101!\n",
+            "1. Submit Order  2. View Orders  3. Logout. 4. Exit\n",
+            "1, 2, 3, or 4 >>1\n",
+            "Product ID   Name       Unit Price   Stock    In-stock  \n",
+            "----------------------------------------------------------\n",
+            "1001         Table      $10.00       200      True      \n",
+            "1002         Chair      $15.00       300      True      \n",
+            "1003         Desk       $20.00       400      True      \n",
+            "Enter the product ID to select a product >>1001\n",
+            "Enter the quantity ordered >>100\n",
+            "\n",
+            "Order Date:   18-05-23\n",
+            "Product ID:   1001\n",
+            "Product Name: Table\n",
+            "Quantity:     100\n",
+            "Order Price: $1000.00\n",
+            "        \n",
+            "Stock updated!\n",
+            "1. Submit Order  2. View Orders  3. Logout. 4. Exit\n",
+            "1, 2, 3, or 4 >>2\n",
+            "-----------------------------------------------------------------\n",
+            "| Order ID |   Date   |Product ID|   Name   | Quantity |  Price   |\n",
+            "-----------------------------------------------------------------\n",
+            "|10001     | 18-05-23 |   1001   |Table     |   100    |   1000.00|\n",
+            "-----------------------------------------------------------------\n",
+            "1. Submit Order  2. View Orders  3. Logout. 4. Exit\n",
+            "1, 2, 3, or 4 >>4\n",
+            "Goodbye!\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "while not quit:\n",
+        "    print(\"1. Login  2. Quit\")\n",
+        "    main_choice = int(input(\"Choose 1 or 2 >>\"))\n",
+        "\n",
+        "    if main_choice == 1:\n",
+        "        print(\"Choose 1 for customer,  2 for manager >\")\n",
+        "        choice = int(input(\"1 OR 2 >>\"))\n",
+        "\n",
+        "        if choice == 1:\n",
+        "            while True:\n",
+        "                cid = int(input(\"Enter id >\"))\n",
+        "                if cid not in customer_info:\n",
+        "                    print(\"Invalid Login!\")\n",
+        "                    continue\n",
+        "\n",
+        "                while True:\n",
+        "                    pw = input(\"Enter Password >\")\n",
+        "                    if customer_info[cid] == pw:\n",
+        "                        print(f'Welcome Customer {cid:d}!')\n",
+        "                        display_customer_menu(cid)  #link user to customer order menu\n",
+        "                        if log_out:\n",
+        "                          print('Logout successfully.')\n",
+        "                          continue\n",
+        "                    else:\n",
+        "                        print(\"Incorrect Password!\")\n",
+        "\n",
+        "                break\n",
+        "\n",
+        "        elif choice == 2:\n",
+        "            while True:\n",
+        "                uid = int(input(\"Enter id >\"))\n",
+        "                if uid not in manager_info:\n",
+        "                    print(\"Invalid Login!\")\n",
+        "                    continue\n",
+        "\n",
+        "                while True:\n",
+        "                    pw = input(\"Enter Password >\")\n",
+        "                    if manager_info[uid] == pw:\n",
+        "                        print(f'Welcome Manager {uid}!')\n",
+        "                        display_manager_menu()  #link user to manager order menu\n",
+        "                        if log_out:\n",
+        "                          print('Logout successfully.')\n",
+        "                          continue\n",
+        "                    else:\n",
+        "                        print(\"Invalid Password!\")\n",
+        "\n",
+        "                break\n",
+        "\n",
+        "        else:\n",
+        "            print(\"Invalid Input!\")\n",
+        "    elif main_choice == 2:\n",
+        "        quit = True\n",
+        "    else:\n",
+        "        print(\"Invalid option. Please choose 1 or 2.\")\n",
+        "\n",
+        "    break"
+      ],
+      "metadata": {
+        "id": "sC-NnB7EE-wI"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
